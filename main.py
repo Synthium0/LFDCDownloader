@@ -34,7 +34,7 @@ decrypt_flag = '-d' in sys.argv
 target_code = TARGET_ID.split('-')[1]
 base_url = f"https://digitalcontent.leapfrog.com/packages/{target_code}/{TARGET_ID}"
 
-for ext in ['lfp', 'lf1', 'lf2', 'lf3']:
+for ext in ['lfp', 'lf2', 'lf3']:
     url = f"{base_url}.{ext}"
     print(f"Trying {url}..... ", end="")
     try:
