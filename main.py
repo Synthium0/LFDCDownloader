@@ -24,13 +24,39 @@ def extract_lf3(path):
         os.makedirs(filename)
     with tarfile.open(fileobj=io.BytesIO(tar_data)) as tar:
         tar.extractall(filename)
+    return filename  # Return extracted folder path
 
-if len(sys.argv) < 2 or len(sys.argv) > 3:
-    print("Usage: python main.py <TARGET_ID> [-d]")
+def update_meta_files(folder):
+    meta_files = ['meta.inf', 'DAMeta.inf']
+    for meta_file in meta_files:
+        meta_path = os.path.join(folder, meta_file)
+        if os.path.exists(meta_path):
+            with open(meta_path, 'rb+') as f:
+                content = f.read()
+                if b"DeviceAccess=1" not in content:
+                    f.seek(0, io.SEEK_END)  # Move to the end of the file
+                    f.write(b"DeviceAccess=1")
+
+def repackage_as_posix_tar(folder, output_tar):
+    with tarfile.open(output_tar, 'w', format=tarfile.PAX_FORMAT) as tar:
+        tar.add(folder, arcname=os.path.basename(folder))
+
+def clean_up(folder, keep_files=False):
+    if not keep_files:
+        for root, dirs, files in os.walk(folder, topdown=False):
+            for name in files:
+                os.remove(os.path.join(root, name))
+            for name in dirs:
+                os.rmdir(os.path.join(root, name))
+        os.rmdir(folder)
+
+if len(sys.argv) < 2 or len(sys.argv) > 4:
+    print("Usage: python main.py <TARGET_ID> [-d] [-i]")
     sys.exit(1)
 
 TARGET_ID = sys.argv[1]
 decrypt_flag = '-d' in sys.argv
+integrate_flag = '-i' in sys.argv
 target_code = TARGET_ID.split('-')[1]
 base_url = f"https://digitalcontent.leapfrog.com/packages/{target_code}/{TARGET_ID}"
 
@@ -45,10 +71,26 @@ for ext in ['lfp', 'lf2', 'lf3']:
             with open(file_path, "wb") as file:
                 for chunk in response.iter_content(chunk_size=8192):
                     file.write(chunk)
+
             if ext == 'lf3' and decrypt_flag:
                 print("Decrypting... \n")
-                extract_lf3(file_path)
+                folder_path = extract_lf3(file_path)
+                if integrate_flag:
+                    print("Processing meta files... \n")
+                    update_meta_files(folder_path)
+                    posix_tar_path = f"{TARGET_ID}.tar"
+                    repackage_as_posix_tar(folder_path, posix_tar_path)
+                    print(f"Repackaged as {posix_tar_path}")
+                    clean_up(folder_path, keep_files=decrypt_flag)
                 print(f"\nID {TARGET_ID} Downloaded and Decrypted Successfully!")
+            elif ext == 'lf3' and integrate_flag:
+                print("Processing meta files... \n")
+                folder_path = extract_lf3(file_path)
+                update_meta_files(folder_path)
+                posix_tar_path = f"{TARGET_ID}.tar"
+                repackage_as_posix_tar(folder_path, posix_tar_path)
+                print(f"Repackaged as {posix_tar_path}")
+                clean_up(folder_path, keep_files=False)
             else:
                 print(f"\nID {TARGET_ID} Downloaded Successfully!")
             break
