@@ -35,7 +35,8 @@ def update_meta_files(folder):
                 content = f.read()
                 if b"DeviceAccess=1" not in content:
                     f.seek(0, io.SEEK_END)  # Move to the end of the file
-                    f.write(b"DeviceAccess=1")
+                    f.write(b"DeviceAccess=1\n")
+                    f.write(b"ProfileAccess=0,1,2")
 
 def repackage_as_posix_tar(folder, output_tar):
     with tarfile.open(output_tar, 'w', format=tarfile.PAX_FORMAT) as tar:
