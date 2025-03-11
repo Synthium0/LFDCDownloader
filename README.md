@@ -18,3 +18,7 @@ Or, if you'd like to decompress the package immediately after it downloads (if i
 If you'd like to have the program generate a .tar file which can be installed onto your LeapFrog device via [LFManager](https://github.com/lfhacks/LFManager/releases), then:
 
 `python main.py <TARGET_ID> -i`
+
+---
+
+> This project is neither endorsed by nor affiliated with LFHacks in any capacity.
