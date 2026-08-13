@@ -15,7 +15,7 @@ Or, if you'd like to decompress the package immediately after it downloads (if i
 
 `python main.py <TARGET_ID> -d`
 
-If you'd like to have the program generate a .tar file which can be installed onto your LeapFrog device via [LFManager](https://github.com/lfhacks/LFManager/releases), then:
+If you'd like to have the program generate a .tar file which can be installed onto your LeapFrog device via [LFManager](https://github.com/lfhacks/LFManager/releases), Or installed into the [Tadpole](https://github.com/BubbletopTag/tadpole) emulator, then:
 
 `python main.py <TARGET_ID> -i`
 
